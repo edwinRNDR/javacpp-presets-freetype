@@ -1,0 +1,22 @@
+--- ftsystem.h.org	2019-11-03 18:05:14.469556400 +0100
++++ ftsystem.h	2019-11-03 18:05:41.211566700 +0100
+@@ -86,7 +86,7 @@
+    */
+   typedef void*
+   (*FT_Alloc_Func)( FT_Memory  memory,
+-                    long       size );
++                    unsigned int   size );
+ 
+ 
+   /**************************************************************************
+@@ -140,8 +140,8 @@
+    */
+   typedef void*
+   (*FT_Realloc_Func)( FT_Memory  memory,
+-                      long       cur_size,
+-                      long       new_size,
++                      unsigned int  cur_size,
++                      unsigned int  new_size,
+                       void*      block );
+ 
+ 

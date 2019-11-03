@@ -614,6 +614,7 @@
         <module>skia</module>
         <module>cpu_features</module>
         <module>systems</module>
+        <module>freetype</module>
       </modules>
       <properties>
         <javacpp.platform>${os.name}-${os.arch}</javacpp.platform>

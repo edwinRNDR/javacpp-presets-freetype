@@ -42,6 +42,7 @@ import org.bytedeco.javacpp.tools.InfoMapper;
                         compiler = "cpp11",
 
                         include = {
+                                "<ft2build.h>",
                                 "<freetype/fttypes.h>",
                                 "<freetype/ftsystem.h>",
                                 "<freetype/ftimage.h>",
@@ -93,6 +94,7 @@ public class freetype implements LoadEnabled, InfoMapper {
     }
 
     public void map(InfoMap infoMap) {
+        infoMap.put(new Info("FT_EXPORT").annotations());
         infoMap.put(new Info("FT_BEGIN_HEADER", "FT_END_HEADER").cppTypes().annotations());
 
         infoMap.put(new Info("FT_OUTLINE_CONTOURS_MAX", "FT_OUTLINE_POINTS_MAX").cppTypes().annotations());

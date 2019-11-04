@@ -11,6 +11,54 @@ import org.bytedeco.javacpp.annotation.*;
 public class freetype extends org.bytedeco.freetype.presets.freetype {
     static { Loader.load(); }
 
+// Parsed from <ft2build.h>
+
+/****************************************************************************
+ *
+ * ft2build.h
+ *
+ *   FreeType 2 build and setup macros.
+ *
+ * Copyright (C) 1996-2019 by
+ * David Turner, Robert Wilhelm, and Werner Lemberg.
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
+
+
+  /**************************************************************************
+   *
+   * This is the 'entry point' for FreeType header file inclusions.  It is
+   * the only header file which should be included directly; all other
+   * FreeType header files should be accessed with macro names (after
+   * including {@code ft2build.h}).
+   *
+   * A typical example is
+   *
+   * <pre>{@code
+   *   #include <ft2build.h>
+   *   #include FT_FREETYPE_H
+   * }</pre>
+   *
+   */
+
+
+// #ifndef FT2BUILD_H_
+// #define FT2BUILD_H_
+
+// #include <freetype/config/ftheader.h>
+
+// #endif /* FT2BUILD_H_ */
+
+
+/* END */
+
+
 // Parsed from <freetype/fttypes.h>
 
 /****************************************************************************

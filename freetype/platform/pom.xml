@@ -20,11 +20,11 @@
     </properties>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>${project.groupId}</groupId>-->
-<!--            <artifactId>${javacpp.moduleId}</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${javacpp.moduleId}</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>${project.groupId}</groupId>-->
 <!--            <artifactId>${javacpp.moduleId}</artifactId>-->
@@ -49,12 +49,12 @@
 <!--            <version>${project.version}</version>-->
 <!--            <classifier>${javacpp.platform.windows-x86}</classifier>-->
 <!--        </dependency>-->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>${javacpp.moduleId}</artifactId>
-            <version>${project.version}</version>
-            <classifier>${javacpp.platform.windows-x86_64}</classifier>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>${project.groupId}</groupId>-->
+<!--            <artifactId>${javacpp.moduleId}</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--            <classifier>${javacpp.platform.windows-x86_64}</classifier>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -112,11 +112,11 @@
                                     <file>${project.build.directory}/${project.artifactId}.jar</file>
                                     <moduleInfoSource>
                                         module org.bytedeco.${javacpp.moduleId}.platform {
-                                        requires org.bytedeco.${javacpp.moduleId}.linux.x86;
+<!--                                        requires org.bytedeco.${javacpp.moduleId}.linux.x86;-->
                                         requires org.bytedeco.${javacpp.moduleId}.linux.x86_64;
-                                        requires org.bytedeco.${javacpp.moduleId}.macosx.x86_64;
-                                        requires org.bytedeco.${javacpp.moduleId}.windows.x86;
-                                        requires org.bytedeco.${javacpp.moduleId}.windows.x86_64;
+<!--                                        requires org.bytedeco.${javacpp.moduleId}.macosx.x86_64;-->
+<!--                                        requires org.bytedeco.${javacpp.moduleId}.windows.x86;-->
+<!--                                        requires org.bytedeco.${javacpp.moduleId}.windows.x86_64;-->
                                         }
                                     </moduleInfoSource>
                                 </module>

@@ -36,7 +36,7 @@ case $PLATFORM in
         echo "we are now in `pwd`"
         CC="gcc -m64" CXX="g++ -m64"
         cmake -E make_directory build
-        cmake -E chdir build cmake .. -DCMAKE_INSTALL_PREFIX="$INSTALL_PATH"
+        cmake -E chdir build cmake .. -DBUILD_SHARED_LIBS:BOOL=true -DCMAKE_INSTALL_PREFIX="$INSTALL_PATH"
         cmake --build build
         cmake --build build --target install
         cd $INSTALL_PATH/include

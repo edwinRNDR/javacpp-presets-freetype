@@ -59,6 +59,546 @@ public class freetype extends org.bytedeco.freetype.presets.freetype {
 /* END */
 
 
+// Parsed from <freetype/config/ftconfig.h>
+
+/****************************************************************************
+ *
+ * ftconfig.in
+ *
+ *   UNIX-specific configuration file (specification only).
+ *
+ * Copyright (C) 1996-2019 by
+ * David Turner, Robert Wilhelm, and Werner Lemberg.
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
+
+
+  /**************************************************************************
+   *
+   * This header file contains a number of macro definitions that are used by
+   * the rest of the engine.  Most of the macros here are automatically
+   * determined at compile time, and you should not need to change it to port
+   * FreeType, except to compile the library with a non-ANSI compiler.
+   *
+   * Note however that if some specific modifications are needed, we advise
+   * you to place a modified copy in your build directory.
+   *
+   * The build directory is usually {@code builds/<system>}, and contains
+   * system-specific files that are always included first when building the
+   * library.
+   *
+   */
+
+// #ifndef FTCONFIG_H_
+// #define FTCONFIG_H_
+
+// #include <ft2build.h>
+// #include FT_CONFIG_OPTIONS_H
+// #include FT_CONFIG_STANDARD_LIBRARY_H
+
+
+  /**************************************************************************
+   *
+   *              PLATFORM-SPECIFIC CONFIGURATION MACROS
+   *
+   * These macros can be toggled to suit a specific system.  The current ones
+   * are defaults used to compile FreeType in an ANSI C environment (16bit
+   * compilers are also supported).  Copy this file to your own
+   * {@code builds/<system>} directory, and edit it to port the engine.
+   *
+   */
+
+
+public static final int HAVE_UNISTD_H = 1;
+public static final int HAVE_FCNTL_H = 1;
+public static final int HAVE_STDINT_H = 1;
+
+  /* There are systems (like the Texas Instruments 'C54x) where a `char`  */
+  /* has 16~bits.  ANSI~C says that `sizeof(char)` is always~1.  Since an */
+  /* `int` has 16~bits also for this system, `sizeof(int)` gives~1 which  */
+  /* is probably unexpected.                                              */
+  /*                                                                      */
+  /* `CHAR_BIT` (defined in `limits.h`) gives the number of bits in a     */
+  /* `char` type.                                                         */
+
+// #ifndef FT_CHAR_BIT
+// #define FT_CHAR_BIT  CHAR_BIT
+// #endif
+
+
+// #undef FT_USE_AUTOCONF_SIZEOF_TYPES
+// #ifdef FT_USE_AUTOCONF_SIZEOF_TYPES
+
+// #undef SIZEOF_INT
+// #undef SIZEOF_LONG
+// #define FT_SIZEOF_INT  SIZEOF_INT
+// #define FT_SIZEOF_LONG SIZEOF_LONG
+
+// #else /* !FT_USE_AUTOCONF_SIZEOF_TYPES */
+
+  /* Following cpp computation of the bit length of `int` and `long` */
+  /* is copied from default `include/freetype/config/ftconfig.h`.    */
+  /* If any improvement is required for this file, it should be      */
+  /* applied to the original header file for the builders that do    */
+  /* not use configure script.                                       */
+
+  /* The size of an `int` type. */
+// #if                                 FT_UINT_MAX == 0xFFFFL
+// #define FT_SIZEOF_INT  ( 16 / FT_CHAR_BIT )
+// #elif                               FT_UINT_MAX == 0xFFFFFFFFL
+// #define FT_SIZEOF_INT  ( 32 / FT_CHAR_BIT )
+// #elif FT_UINT_MAX > 0xFFFFFFFFL && FT_UINT_MAX == 0xFFFFFFFFFFFFFFFFL
+// #define FT_SIZEOF_INT  ( 64 / FT_CHAR_BIT )
+// #else
+// #error "Unsupported size of `int' type!"
+// #endif
+
+  /* The size of a `long` type.  A five-byte `long` (as used e.g. on the */
+  /* DM642) is recognized but avoided.                                   */
+// #if                                  FT_ULONG_MAX == 0xFFFFFFFFL
+// #define FT_SIZEOF_LONG  ( 32 / FT_CHAR_BIT )
+// #elif FT_ULONG_MAX > 0xFFFFFFFFL && FT_ULONG_MAX == 0xFFFFFFFFFFL
+// #define FT_SIZEOF_LONG  ( 32 / FT_CHAR_BIT )
+// #elif FT_ULONG_MAX > 0xFFFFFFFFL && FT_ULONG_MAX == 0xFFFFFFFFFFFFFFFFL
+// #define FT_SIZEOF_LONG  ( 64 / FT_CHAR_BIT )
+// #else
+// #error "Unsupported size of `long' type!"
+// #endif
+
+// #endif /* !FT_USE_AUTOCONF_SIZEOF_TYPES */
+
+  /* `FT_UNUSED` indicates that a given parameter is not used --   */
+  /* this is only used to get rid of unpleasant compiler warnings. */
+// #ifndef FT_UNUSED
+// #define FT_UNUSED( arg )  ( (arg) = (arg) )
+// #endif
+
+
+  /**************************************************************************
+   *
+   *                    AUTOMATIC CONFIGURATION MACROS
+   *
+   * These macros are computed from the ones defined above.  Don't touch
+   * their definition, unless you know precisely what you are doing.  No
+   * porter should need to mess with them.
+   *
+   */
+
+
+  /**************************************************************************
+   *
+   * Mac support
+   *
+   *   This is the only necessary change, so it is defined here instead
+   *   providing a new configuration file.
+   */
+// #if defined( __APPLE__ ) || ( defined( __MWERKS__ ) && defined( macintosh ) )
+  /* No Carbon frameworks for 64bit 10.4.x.                         */
+  /* `AvailabilityMacros.h` is available since Mac OS X 10.2,       */
+  /* so guess the system version by maximum errno before inclusion. */
+// #include <errno.h>
+// #ifdef ECANCELED /* defined since 10.2 */
+// #include "AvailabilityMacros.h"
+// #endif
+// #if defined( __LP64__ ) &&
+//     ( MAC_OS_X_VERSION_MIN_REQUIRED <= MAC_OS_X_VERSION_10_4 )
+// #undef FT_MACINTOSH
+// #endif
+
+// #elif defined( __SC__ ) || defined( __MRC__ )
+  /* Classic MacOS compilers */
+// #include "ConditionalMacros.h"
+// #if TARGET_OS_MAC
+public static final int FT_MACINTOSH = 1;
+// #endif
+
+// #endif
+
+
+  /* Fix compiler warning with sgi compiler. */
+// #if defined( __sgi ) && !defined( __GNUC__ )
+// #if defined( _COMPILER_VERSION ) && ( _COMPILER_VERSION >= 730 )
+// #pragma set woff 3505
+// #endif
+// #endif
+
+
+  /**************************************************************************
+   *
+   * \section:
+   *   basic_types
+   *
+   */
+
+
+  /**************************************************************************
+   *
+   * \type:
+   *   FT_Int16
+   *
+   * \description:
+   *   A typedef for a 16bit signed integer type.
+   */
+
+
+  /**************************************************************************
+   *
+   * \type:
+   *   FT_UInt16
+   *
+   * \description:
+   *   A typedef for a 16bit unsigned integer type.
+   */
+
+  /* */
+
+
+  /* this #if 0 ... #endif clause is for documentation purposes */
+// #if 0
+
+// #endif
+
+// #if FT_SIZEOF_INT == 4
+
+// #elif FT_SIZEOF_LONG == 4
+
+// #else
+// #error "no 32bit type found -- please check your configuration files"
+// #endif
+
+
+  /* look up an integer type that is at least 32~bits */
+// #if FT_SIZEOF_INT >= 4
+
+// #elif FT_SIZEOF_LONG >= 4
+
+// #endif
+
+
+  /* determine whether we have a 64-bit `int` type for platforms without */
+  /* Autoconf                                                            */
+// #if FT_SIZEOF_LONG == 8
+
+  /* `FT_LONG64` must be defined if a 64-bit type is available */
+// #define FT_LONG64
+// #define FT_INT64   long
+// #define FT_UINT64  unsigned long
+
+  /* we handle the LLP64 scheme separately for GCC and clang, */
+  /* suppressing the `long long` warning                      */
+// #elif ( FT_SIZEOF_LONG == 4 )       &&
+//       defined( HAVE_LONG_LONG_INT ) &&
+//       defined( __GNUC__ )
+// #pragma GCC diagnostic ignored "-Wlong-long"
+// #define FT_LONG64
+// #define FT_INT64   long long int
+// #define FT_UINT64  unsigned long long int
+
+  /**************************************************************************
+   *
+   * A 64-bit data type may create compilation problems if you compile in
+   * strict ANSI mode.  To avoid them, we disable other 64-bit data types if
+   * {@code __STDC__} is defined.  You can however ignore this rule by defining the
+   * {@code FT_CONFIG_OPTION_FORCE_INT64} configuration macro.
+   */
+// #elif !defined( __STDC__ ) || defined( FT_CONFIG_OPTION_FORCE_INT64 )
+
+// #if defined( __STDC_VERSION__ ) && __STDC_VERSION__ >= 199901L
+
+// #define FT_LONG64
+// #define FT_INT64   long long int
+// #define FT_UINT64  unsigned long long int
+
+// #elif defined( _MSC_VER ) && _MSC_VER >= 900 /* Visual C++ (and Intel C++) */
+
+  /* this compiler provides the `__int64` type */
+// #define FT_LONG64
+// #define FT_INT64   __int64
+// #define FT_UINT64  unsigned __int64
+
+// #elif defined( __BORLANDC__ )  /* Borland C++ */
+
+  /* XXXX: We should probably check the value of `__BORLANDC__` in order */
+  /*       to test the compiler version.                                 */
+
+  /* this compiler provides the `__int64` type */
+// #define FT_LONG64
+// #define FT_INT64   __int64
+// #define FT_UINT64  unsigned __int64
+
+// #elif defined( __WATCOMC__ )   /* Watcom C++ */
+
+  /* Watcom doesn't provide 64-bit data types */
+
+// #elif defined( __MWERKS__ )    /* Metrowerks CodeWarrior */
+
+// #define FT_LONG64
+// #define FT_INT64   long long int
+// #define FT_UINT64  unsigned long long int
+
+// #elif defined( __GNUC__ )
+
+  /* GCC provides the `long long` type */
+// #define FT_LONG64
+// #define FT_INT64   long long int
+// #define FT_UINT64  unsigned long long int
+
+// #endif /* __STDC_VERSION__ >= 199901L */
+
+// #endif /* FT_SIZEOF_LONG == 8 */
+
+// #ifdef FT_LONG64
+// #endif
+
+
+// #ifdef _WIN64
+  /* only 64bit Windows uses the LLP64 data model, i.e., */
+  /* 32bit integers, 64bit pointers                      */
+// #define FT_UINT_TO_POINTER( x ) (void*)(unsigned __int64)(x)
+// #else
+// #define FT_UINT_TO_POINTER( x ) (void*)(unsigned long)(x)
+// #endif
+
+
+  /**************************************************************************
+   *
+   * miscellaneous
+   *
+   */
+
+
+// #define FT_BEGIN_STMNT  do {
+// #define FT_END_STMNT    } while ( 0 )
+// #define FT_DUMMY_STMNT  FT_BEGIN_STMNT FT_END_STMNT
+
+
+  /* `typeof` condition taken from gnulib's `intprops.h` header file */
+// #if ( ( defined( __GNUC__ ) && __GNUC__ >= 2 )                       ||
+//       ( defined( __IBMC__ ) && __IBMC__ >= 1210 &&
+//         defined( __IBM__TYPEOF__ ) )                                 ||
+//       ( defined( __SUNPRO_C ) && __SUNPRO_C >= 0x5110 && !__STDC__ ) )
+// #define FT_TYPEOF( type )  ( __typeof__ ( type ) )
+// #else
+// #define FT_TYPEOF( type )  /* empty */
+// #endif
+
+
+  /* Use `FT_LOCAL` and `FT_LOCAL_DEF` to declare and define,            */
+  /* respectively, a function that gets used only within the scope of a  */
+  /* module.  Normally, both the header and source code files for such a */
+  /* function are within a single module directory.                      */
+  /*                                                                     */
+  /* Intra-module arrays should be tagged with `FT_LOCAL_ARRAY` and      */
+  /* `FT_LOCAL_ARRAY_DEF`.                                               */
+  /*                                                                     */
+// #ifdef FT_MAKE_OPTION_SINGLE_OBJECT
+
+// #define FT_LOCAL( x )      static  x
+// #define FT_LOCAL_DEF( x )  static  x
+
+// #else
+
+// #ifdef __cplusplus
+// #define FT_LOCAL( x )      extern "C"  x
+// #define FT_LOCAL_DEF( x )  extern "C"  x
+// #else
+// #define FT_LOCAL( x )      extern  x
+// #define FT_LOCAL_DEF( x )  x
+// #endif
+
+// #endif /* FT_MAKE_OPTION_SINGLE_OBJECT */
+
+// #define FT_LOCAL_ARRAY( x )      extern const  x
+// #define FT_LOCAL_ARRAY_DEF( x )  const  x
+
+
+  /* Use `FT_BASE` and `FT_BASE_DEF` to declare and define, respectively, */
+  /* functions that are used in more than a single module.  In the        */
+  /* current setup this implies that the declaration is in a header file  */
+  /* in the `include/freetype/internal` directory, and the function body  */
+  /* is in a file in `src/base`.                                          */
+  /*                                                                      */
+// #ifndef FT_BASE
+
+// #ifdef __cplusplus
+// #define FT_BASE( x )  extern "C"  x
+// #else
+// #define FT_BASE( x )  extern  x
+// #endif
+
+// #endif /* !FT_BASE */
+
+
+// #ifndef FT_BASE_DEF
+
+// #ifdef __cplusplus
+// #define FT_BASE_DEF( x )  x
+// #else
+// #define FT_BASE_DEF( x )  x
+// #endif
+
+// #endif /* !FT_BASE_DEF */
+
+
+  /* When compiling FreeType as a DLL or DSO with hidden visibility    */
+  /* some systems/compilers need a special attribute in front OR after */
+  /* the return type of function declarations.                         */
+  /*                                                                   */
+  /* Two macros are used within the FreeType source code to define     */
+  /* exported library functions: `FT_EXPORT` and `FT_EXPORT_DEF`.      */
+  /*                                                                   */
+  /* - `FT_EXPORT( return_type )`                                      */
+  /*                                                                   */
+  /*   is used in a function declaration, as in                        */
+  /*                                                                   */
+  /*   ```                                                             */
+  /*     FT_EXPORT( FT_Error )                                         */
+  /*     FT_Init_FreeType( FT_Library*  alibrary );                    */
+  /*   ```                                                             */
+  /*                                                                   */
+  /* - `FT_EXPORT_DEF( return_type )`                                  */
+  /*                                                                   */
+  /*   is used in a function definition, as in                         */
+  /*                                                                   */
+  /*   ```                                                             */
+  /*     FT_EXPORT_DEF( FT_Error )                                     */
+  /*     FT_Init_FreeType( FT_Library*  alibrary )                     */
+  /*     {                                                             */
+  /*       ... some code ...                                           */
+  /*       return FT_Err_Ok;                                           */
+  /*     }                                                             */
+  /*   ```                                                             */
+  /*                                                                   */
+  /* You can provide your own implementation of `FT_EXPORT` and        */
+  /* `FT_EXPORT_DEF` here if you want.                                 */
+  /*                                                                   */
+  /* To export a variable, use `FT_EXPORT_VAR`.                        */
+  /*                                                                   */
+// #ifndef FT_EXPORT
+
+// #ifdef FT2_BUILD_LIBRARY
+
+// #if defined( _WIN32 ) && defined( DLL_EXPORT )
+// #define FT_EXPORT( x )  __declspec( dllexport )  x
+// #elif defined( __GNUC__ ) && __GNUC__ >= 4
+// #define FT_EXPORT( x )  __attribute__(( visibility( "default" ) ))  x
+// #elif defined( __SUNPRO_C ) && __SUNPRO_C >= 0x550
+// #define FT_EXPORT( x )  __global  x
+// #elif defined( __cplusplus )
+// #define FT_EXPORT( x )  extern "C"  x
+// #else
+// #define FT_EXPORT( x )  extern  x
+// #endif
+
+// #else
+
+// #if defined( _WIN32 ) && defined( DLL_IMPORT )
+// #define FT_EXPORT( x )  __declspec( dllimport )  x
+// #elif defined( __cplusplus )
+// #define FT_EXPORT( x )  extern "C"  x
+// #else
+// #define FT_EXPORT( x )  extern  x
+// #endif
+
+// #endif
+
+// #endif /* !FT_EXPORT */
+
+
+// #ifndef FT_EXPORT_DEF
+
+// #ifdef __cplusplus
+// #define FT_EXPORT_DEF( x )  extern "C"  x
+// #else
+// #define FT_EXPORT_DEF( x )  extern  x
+// #endif
+
+// #endif /* !FT_EXPORT_DEF */
+
+
+// #ifndef FT_EXPORT_VAR
+
+// #ifdef __cplusplus
+// #define FT_EXPORT_VAR( x )  extern "C"  x
+// #else
+// #define FT_EXPORT_VAR( x )  extern  x
+// #endif
+
+// #endif /* !FT_EXPORT_VAR */
+
+
+  /* The following macros are needed to compile the library with a   */
+  /* C++ compiler and with 16bit compilers.                          */
+  /*                                                                 */
+
+  /* This is special.  Within C++, you must specify `extern "C"` for */
+  /* functions which are used via function pointers, and you also    */
+  /* must do that for structures which contain function pointers to  */
+  /* assure C linkage -- it's not possible to have (local) anonymous */
+  /* functions which are accessed by (global) function pointers.     */
+  /*                                                                 */
+  /*                                                                 */
+  /* FT_CALLBACK_DEF is used to _define_ a callback function,        */
+  /* located in the same source code file as the structure that uses */
+  /* it.                                                             */
+  /*                                                                 */
+  /* FT_BASE_CALLBACK and FT_BASE_CALLBACK_DEF are used to declare   */
+  /* and define a callback function, respectively, in a similar way  */
+  /* as FT_BASE and FT_BASE_DEF work.                                */
+  /*                                                                 */
+  /* FT_CALLBACK_TABLE is used to _declare_ a constant variable that */
+  /* contains pointers to callback functions.                        */
+  /*                                                                 */
+  /* FT_CALLBACK_TABLE_DEF is used to _define_ a constant variable   */
+  /* that contains pointers to callback functions.                   */
+  /*                                                                 */
+  /*                                                                 */
+  /* Some 16bit compilers have to redefine these macros to insert    */
+  /* the infamous `_cdecl` or `__fastcall` declarations.             */
+  /*                                                                 */
+// #ifndef FT_CALLBACK_DEF
+// #ifdef __cplusplus
+// #define FT_CALLBACK_DEF( x )  extern "C"  x
+// #else
+// #define FT_CALLBACK_DEF( x )  static  x
+// #endif
+// #endif /* FT_CALLBACK_DEF */
+
+// #ifndef FT_BASE_CALLBACK
+// #ifdef __cplusplus
+// #define FT_BASE_CALLBACK( x )      extern "C"  x
+// #define FT_BASE_CALLBACK_DEF( x )  extern "C"  x
+// #else
+// #define FT_BASE_CALLBACK( x )      extern  x
+// #define FT_BASE_CALLBACK_DEF( x )  x
+// #endif
+// #endif /* FT_BASE_CALLBACK */
+
+// #ifndef FT_CALLBACK_TABLE
+// #ifdef __cplusplus
+// #define FT_CALLBACK_TABLE      extern "C"
+// #define FT_CALLBACK_TABLE_DEF  extern "C"
+// #else
+// #define FT_CALLBACK_TABLE      extern
+// #define FT_CALLBACK_TABLE_DEF  /* nothing */
+// #endif
+// #endif /* FT_CALLBACK_TABLE */
+
+
+// #endif /* FTCONFIG_H_ */
+
+
+/* END */
+
+
+
+
 // Parsed from <freetype/fttypes.h>
 
 /****************************************************************************
@@ -1625,7 +2165,8 @@ public static final int FT_STYLE_FLAG_BOLD =    ( 1 << 1 );
    *   variable to control driver properties.  See section \properties for
    *   more.
    */
-  
+  public static native @Cast("FT_Error") int FT_Init_FreeType( @Cast("FT_Library*") PointerPointer alibrary );
+  public static native @Cast("FT_Error") int FT_Init_FreeType( @ByPtrPtr FT_Library alibrary );
 
 
   /**************************************************************************
@@ -1644,7 +2185,7 @@ public static final int FT_STYLE_FLAG_BOLD =    ( 1 << 1 );
    * @return :
    *   FreeType error code.  0~means success.
    */
-  
+  public static native @Cast("FT_Error") int FT_Done_FreeType( FT_Library library );
 
 
   /**************************************************************************
@@ -1729,7 +2270,14 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    *   Use \FT_Done_Face to destroy the created \FT_Face object (along with
    *   its slot and sizes).
    */
-  
+  public static native @Cast("FT_Error") int FT_New_Face( FT_Library library,
+                 @Cast("const char*") BytePointer filepathname,
+                 @Cast("FT_Long") long face_index,
+                 @Cast("FT_Face*") PointerPointer aface );
+  public static native @Cast("FT_Error") int FT_New_Face( FT_Library library,
+                 String filepathname,
+                 @Cast("FT_Long") long face_index,
+                 @ByPtrPtr FT_Face aface );
 
 
   /**************************************************************************
@@ -1765,7 +2313,36 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    * \note:
    *   You must not deallocate the memory before calling \FT_Done_Face.
    */
-  
+  public static native @Cast("FT_Error") int FT_New_Memory_Face( FT_Library library,
+                        @Cast("const FT_Byte*") BytePointer file_base,
+                        @Cast("FT_Long") long file_size,
+                        @Cast("FT_Long") long face_index,
+                        @Cast("FT_Face*") PointerPointer aface );
+  public static native @Cast("FT_Error") int FT_New_Memory_Face( FT_Library library,
+                        @Cast("const FT_Byte*") ByteBuffer file_base,
+                        @Cast("FT_Long") long file_size,
+                        @Cast("FT_Long") long face_index,
+                        @ByPtrPtr FT_Face aface );
+  public static native @Cast("FT_Error") int FT_New_Memory_Face( FT_Library library,
+                        @Cast("const FT_Byte*") byte[] file_base,
+                        @Cast("FT_Long") long file_size,
+                        @Cast("FT_Long") long face_index,
+                        @Cast("FT_Face*") PointerPointer aface );
+  public static native @Cast("FT_Error") int FT_New_Memory_Face( FT_Library library,
+                        @Cast("const FT_Byte*") BytePointer file_base,
+                        @Cast("FT_Long") long file_size,
+                        @Cast("FT_Long") long face_index,
+                        @ByPtrPtr FT_Face aface );
+  public static native @Cast("FT_Error") int FT_New_Memory_Face( FT_Library library,
+                        @Cast("const FT_Byte*") ByteBuffer file_base,
+                        @Cast("FT_Long") long file_size,
+                        @Cast("FT_Long") long face_index,
+                        @Cast("FT_Face*") PointerPointer aface );
+  public static native @Cast("FT_Error") int FT_New_Memory_Face( FT_Library library,
+                        @Cast("const FT_Byte*") byte[] file_base,
+                        @Cast("FT_Long") long file_size,
+                        @Cast("FT_Long") long face_index,
+                        @ByPtrPtr FT_Face aface );
 
 
   /**************************************************************************
@@ -1905,7 +2482,14 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    *     } while ( face_idx < num_faces )
    *   }</pre>
    */
-  
+  public static native @Cast("FT_Error") int FT_Open_Face( FT_Library library,
+                  @Const FT_Open_Args args,
+                  @Cast("FT_Long") long face_index,
+                  @Cast("FT_Face*") PointerPointer aface );
+  public static native @Cast("FT_Error") int FT_Open_Face( FT_Library library,
+                  @Const FT_Open_Args args,
+                  @Cast("FT_Long") long face_index,
+                  @ByPtrPtr FT_Face aface );
 
 
   /**************************************************************************
@@ -1927,7 +2511,10 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    * @return :
    *   FreeType error code.  0~means success.
    */
-  
+  public static native @Cast("FT_Error") int FT_Attach_File( FT_Face face,
+                    @Cast("const char*") BytePointer filepathname );
+  public static native @Cast("FT_Error") int FT_Attach_File( FT_Face face,
+                    String filepathname );
 
 
   /**************************************************************************
@@ -1961,7 +2548,8 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    *   invoking this function.  Most drivers simply do not implement file or
    *   stream attachments.
    */
-  
+  public static native @Cast("FT_Error") int FT_Attach_Stream( FT_Face face,
+                      FT_Open_Args parameters );
 
 
   /**************************************************************************
@@ -1988,7 +2576,7 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    * @since :
    *   2.4.2
    */
-  
+  public static native @Cast("FT_Error") int FT_Reference_Face( FT_Face face );
 
 
   /**************************************************************************
@@ -2011,7 +2599,7 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    *   See the discussion of reference counters in the description of
    *   \FT_Reference_Face.
    */
-  
+  public static native @Cast("FT_Error") int FT_Done_Face( FT_Face face );
 
 
   /**************************************************************************
@@ -2050,7 +2638,8 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    *
    *   Don't use this function if you are using the FreeType cache API.
    */
-  
+  public static native @Cast("FT_Error") int FT_Select_Size( FT_Face face,
+                    @Cast("FT_Int") int strike_index );
 
 
   /**************************************************************************
@@ -2114,7 +2703,7 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
 // Targeting ../FT_Size_RequestRec.java
 
 
-// Targeting ../FT_Size_RequestRec_.java
+// Targeting ../FT_Size_Request.java
 
 
 
@@ -2155,7 +2744,8 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    *
    *   Don't use this function if you are using the FreeType cache API.
    */
-  
+  public static native @Cast("FT_Error") int FT_Request_Size( FT_Face face,
+                     FT_Size_Request req );
 
 
   /**************************************************************************
@@ -2202,7 +2792,11 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    *
    *   Don't use this function if you are using the FreeType cache API.
    */
-  
+  public static native @Cast("FT_Error") int FT_Set_Char_Size( FT_Face face,
+                      @Cast("FT_F26Dot6") long char_width,
+                      @Cast("FT_F26Dot6") long char_height,
+                      @Cast("FT_UInt") int horz_resolution,
+                      @Cast("FT_UInt") int vert_resolution );
 
 
   /**************************************************************************
@@ -2234,7 +2828,9 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    *
    *   Don't use this function if you are using the FreeType cache API.
    */
-  
+  public static native @Cast("FT_Error") int FT_Set_Pixel_Sizes( FT_Face face,
+                        @Cast("FT_UInt") int pixel_width,
+                        @Cast("FT_UInt") int pixel_height );
 
 
   /**************************************************************************
@@ -2277,7 +2873,9 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    *   at EM size, then scale it manually and fill it as a graphics
    *   operation.
    */
-  
+  public static native @Cast("FT_Error") int FT_Load_Glyph( FT_Face face,
+                   @Cast("FT_UInt") int glyph_index,
+                   @Cast("FT_Int32") int load_flags );
 
 
   /**************************************************************************
@@ -2317,7 +2915,9 @@ public static final int ft_open_params =    FT_OPEN_PARAMS;
    *   to \FT_Get_Char_Index is omitted, and the function behaves identically
    *   to \FT_Load_Glyph.
    */
-  
+  public static native @Cast("FT_Error") int FT_Load_Char( FT_Face face,
+                  @Cast("FT_ULong") long char_code,
+                  @Cast("FT_Int32") int load_flags );
 
 
   /**************************************************************************
@@ -2670,7 +3270,9 @@ public static final int FT_LOAD_TARGET_LCD_V = FT_LOAD_TARGET_LCD_V();
    *   Note that this also transforms the {@code face.glyph.advance} field, but
    *   **not** the values in {@code face.glyph.metrics}.
    */
-  
+  public static native void FT_Set_Transform( FT_Face face,
+                      FT_Matrix matrix,
+                      FT_Vector delta );
 
 
   /**************************************************************************
@@ -2852,7 +3454,8 @@ public static final int ft_render_mode_mono =    FT_RENDER_MODE_MONO;
    *   3~times per pixel: red foreground subpixel to red background subpixel
    *   and so on for green and blue.
    */
-  
+  public static native @Cast("FT_Error") int FT_Render_Glyph( FT_GlyphSlot slot,
+                     @Cast("FT_Render_Mode") int render_mode );
 
 
   /**************************************************************************
@@ -2938,7 +3541,11 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    *   supported; use \FT_HAS_KERNING to find out whether a font has data
    *   that can be extracted with {@code FT_Get_Kerning}.
    */
-  
+  public static native @Cast("FT_Error") int FT_Get_Kerning( FT_Face face,
+                    @Cast("FT_UInt") int left_glyph,
+                    @Cast("FT_UInt") int right_glyph,
+                    @Cast("FT_UInt") int kern_mode,
+                    FT_Vector akerning );
 
 
   /**************************************************************************
@@ -2977,7 +3584,10 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    *   Only very few AFM files come with track kerning data; please refer to
    *   Adobe's AFM specification for more details.
    */
-  
+  public static native @Cast("FT_Error") int FT_Get_Track_Kerning( FT_Face face,
+                          @Cast("FT_Fixed") long point_size,
+                          @Cast("FT_Int") int degree,
+                          @Cast("FT_Fixed*") CLongPointer akerning );
 
 
   /**************************************************************************
@@ -3020,7 +3630,10 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    *   This function always returns an error if the config macro
    *   {@code FT_CONFIG_OPTION_NO_GLYPH_NAMES} is not defined in {@code ftoption.h}.
    */
-  
+  public static native @Cast("FT_Error") int FT_Get_Glyph_Name( FT_Face face,
+                       @Cast("FT_UInt") int glyph_index,
+                       FT_Pointer buffer,
+                       @Cast("FT_UInt") int buffer_max );
 
 
   /**************************************************************************
@@ -3055,7 +3668,7 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    *   \FT_IS_VARIATION returns true, the algorithmically derived PostScript
    *   name is provided, not looking up special entries for named instances.
    */
-  
+  public static native @Cast("const char*") BytePointer FT_Get_Postscript_Name( FT_Face face );
 
 
   /**************************************************************************
@@ -3088,7 +3701,8 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    *   preferred to a UCS-2 cmap).  It is thus preferable to \FT_Set_Charmap
    *   in this case.
    */
-  
+  public static native @Cast("FT_Error") int FT_Select_Charmap( FT_Face face,
+                       @Cast("FT_Encoding") int encoding );
 
 
   /**************************************************************************
@@ -3117,7 +3731,8 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    *   It also fails if an OpenType type~14 charmap is selected (which
    *   doesn't map character codes to glyph indices at all).
    */
-  
+  public static native @Cast("FT_Error") int FT_Set_Charmap( FT_Face face,
+                    FT_CharMap charmap );
 
 
   /**************************************************************************
@@ -3137,7 +3752,7 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    *   {@code charmap} belongs.  If an error occurs, -1 is returned.
    *
    */
-  
+  public static native @Cast("FT_Int") int FT_Get_Charmap_Index( FT_CharMap charmap );
 
 
   /**************************************************************************
@@ -3171,7 +3786,8 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    *   created at index~0 and whatever was there will be moved to the last
    *   index -- Type~42 fonts are considered invalid under this condition.
    */
-  
+  public static native @Cast("FT_UInt") int FT_Get_Char_Index( FT_Face face,
+                       @Cast("FT_ULong") long charcode );
 
 
   /**************************************************************************
@@ -3224,7 +3840,12 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    *   itself can be~0 in two cases: if the charmap is empty or if the
    *   value~0 is the first valid character code.
    */
-  
+  public static native @Cast("FT_ULong") long FT_Get_First_Char( FT_Face face,
+                       @Cast("FT_UInt*") IntPointer agindex );
+  public static native @Cast("FT_ULong") long FT_Get_First_Char( FT_Face face,
+                       @Cast("FT_UInt*") IntBuffer agindex );
+  public static native @Cast("FT_ULong") long FT_Get_First_Char( FT_Face face,
+                       @Cast("FT_UInt*") int[] agindex );
 
 
   /**************************************************************************
@@ -3259,7 +3880,15 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    *   Note that {@code *agindex} is set to~0 when there are no more codes in the
    *   charmap.
    */
-  
+  public static native @Cast("FT_ULong") long FT_Get_Next_Char( FT_Face face,
+                      @Cast("FT_ULong") long char_code,
+                      @Cast("FT_UInt*") IntPointer agindex );
+  public static native @Cast("FT_ULong") long FT_Get_Next_Char( FT_Face face,
+                      @Cast("FT_ULong") long char_code,
+                      @Cast("FT_UInt*") IntBuffer agindex );
+  public static native @Cast("FT_ULong") long FT_Get_Next_Char( FT_Face face,
+                      @Cast("FT_ULong") long char_code,
+                      @Cast("FT_UInt*") int[] agindex );
 
 
   /**************************************************************************
@@ -3354,7 +3983,9 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    *   2.8
    *
    */
-  
+  public static native @Cast("FT_Error") int FT_Face_Properties( FT_Face face,
+                        @Cast("FT_UInt") int num_properties,
+                        FT_Parameter properties );
 
 
   /**************************************************************************
@@ -3375,7 +4006,12 @@ public static final int ft_kerning_unscaled =  FT_KERNING_UNSCALED;
    * @return :
    *   The glyph index.  0~means 'undefined character code'.
    */
-  
+  public static native @Cast("FT_UInt") int FT_Get_Name_Index( FT_Face face,
+                       @Cast("const FT_String*") BytePointer glyph_name );
+  public static native @Cast("FT_UInt") int FT_Get_Name_Index( FT_Face face,
+                       @Cast("const FT_String*") ByteBuffer glyph_name );
+  public static native @Cast("FT_UInt") int FT_Get_Name_Index( FT_Face face,
+                       @Cast("const FT_String*") byte[] glyph_name );
 
 
   /**************************************************************************
@@ -3454,7 +4090,27 @@ public static final int FT_SUBGLYPH_FLAG_USE_MY_METRICS =      0x200;
    *     https://docs.microsoft.com/en-us/typography/opentype/spec/glyf#composite-glyph-description
    *
    */
-  
+  public static native @Cast("FT_Error") int FT_Get_SubGlyph_Info( FT_GlyphSlot glyph,
+                          @Cast("FT_UInt") int sub_index,
+                          @Cast("FT_Int*") IntPointer p_index,
+                          @Cast("FT_UInt*") IntPointer p_flags,
+                          @Cast("FT_Int*") IntPointer p_arg1,
+                          @Cast("FT_Int*") IntPointer p_arg2,
+                          FT_Matrix p_transform );
+  public static native @Cast("FT_Error") int FT_Get_SubGlyph_Info( FT_GlyphSlot glyph,
+                          @Cast("FT_UInt") int sub_index,
+                          @Cast("FT_Int*") IntBuffer p_index,
+                          @Cast("FT_UInt*") IntBuffer p_flags,
+                          @Cast("FT_Int*") IntBuffer p_arg1,
+                          @Cast("FT_Int*") IntBuffer p_arg2,
+                          FT_Matrix p_transform );
+  public static native @Cast("FT_Error") int FT_Get_SubGlyph_Info( FT_GlyphSlot glyph,
+                          @Cast("FT_UInt") int sub_index,
+                          @Cast("FT_Int*") int[] p_index,
+                          @Cast("FT_UInt*") int[] p_flags,
+                          @Cast("FT_Int*") int[] p_arg1,
+                          @Cast("FT_Int*") int[] p_arg2,
+                          FT_Matrix p_transform );
 // Targeting ../FT_LayerIterator.java
 
 
@@ -3568,7 +4224,21 @@ public static final int FT_SUBGLYPH_FLAG_USE_MY_METRICS =      0x200;
    *     }
    *   }</pre>
    */
-  
+  public static native @Cast("FT_Bool") byte FT_Get_Color_Glyph_Layer( FT_Face face,
+                              @Cast("FT_UInt") int base_glyph,
+                              @Cast("FT_UInt*") IntPointer aglyph_index,
+                              @Cast("FT_UInt*") IntPointer acolor_index,
+                              FT_LayerIterator iterator );
+  public static native @Cast("FT_Bool") byte FT_Get_Color_Glyph_Layer( FT_Face face,
+                              @Cast("FT_UInt") int base_glyph,
+                              @Cast("FT_UInt*") IntBuffer aglyph_index,
+                              @Cast("FT_UInt*") IntBuffer acolor_index,
+                              FT_LayerIterator iterator );
+  public static native @Cast("FT_Bool") byte FT_Get_Color_Glyph_Layer( FT_Face face,
+                              @Cast("FT_UInt") int base_glyph,
+                              @Cast("FT_UInt*") int[] aglyph_index,
+                              @Cast("FT_UInt*") int[] acolor_index,
+                              FT_LayerIterator iterator );
 
 
   /**************************************************************************
@@ -3662,7 +4332,7 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    * @since :
    *   2.3.8
    */
-  
+  public static native @Cast("FT_UShort") short FT_Get_FSType_Flags( FT_Face face );
 
 
   /**************************************************************************
@@ -3754,7 +4424,9 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    * @since :
    *   2.3.6
    */
-  
+  public static native @Cast("FT_UInt") int FT_Face_GetCharVariantIndex( FT_Face face,
+                                 @Cast("FT_ULong") long charcode,
+                                 @Cast("FT_ULong") long variantSelector );
 
 
   /**************************************************************************
@@ -3787,7 +4459,9 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    * @since :
    *   2.3.6
    */
-  
+  public static native @Cast("FT_Int") int FT_Face_GetCharVariantIsDefault( FT_Face face,
+                                     @Cast("FT_ULong") long charcode,
+                                     @Cast("FT_ULong") long variantSelector );
 
 
   /**************************************************************************
@@ -3815,7 +4489,7 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    * @since :
    *   2.3.6
    */
-  
+  public static native @Cast("FT_UInt32*") IntPointer FT_Face_GetVariantSelectors( FT_Face face );
 
 
   /**************************************************************************
@@ -3847,7 +4521,8 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    * @since :
    *   2.3.6
    */
-  
+  public static native @Cast("FT_UInt32*") IntPointer FT_Face_GetVariantsOfChar( FT_Face face,
+                               @Cast("FT_ULong") long charcode );
 
 
   /**************************************************************************
@@ -3879,7 +4554,8 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    * @since :
    *   2.3.6
    */
-  
+  public static native @Cast("FT_UInt32*") IntPointer FT_Face_GetCharsOfVariant( FT_Face face,
+                               @Cast("FT_ULong") long variantSelector );
 
 
   /**************************************************************************
@@ -3943,7 +4619,9 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    *   divide by zero; it simply returns 'MaxInt' or 'MinInt' depending on
    *   the signs of {@code a} and {@code b}.
    */
-  
+  public static native @Cast("FT_Long") long FT_MulDiv( @Cast("FT_Long") long a,
+               @Cast("FT_Long") long b,
+               @Cast("FT_Long") long c );
 
 
   /**************************************************************************
@@ -3976,7 +4654,8 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    *   As a conclusion, always try to place a 16.16 factor as the _second_
    *   argument of this function; this can make a great difference.
    */
-  
+  public static native @Cast("FT_Long") long FT_MulFix( @Cast("FT_Long") long a,
+               @Cast("FT_Long") long b );
 
 
   /**************************************************************************
@@ -3998,7 +4677,8 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    * @return :
    *   The result of {@code (a*0x10000)/b}.
    */
-  
+  public static native @Cast("FT_Long") long FT_DivFix( @Cast("FT_Long") long a,
+               @Cast("FT_Long") long b );
 
 
   /**************************************************************************
@@ -4020,7 +4700,7 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    * \note:
    *   The function uses wrap-around arithmetic.
    */
-  
+  public static native @Cast("FT_Fixed") long FT_RoundFix( @Cast("FT_Fixed") long a );
 
 
   /**************************************************************************
@@ -4041,7 +4721,7 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    * \note:
    *   The function uses wrap-around arithmetic.
    */
-  
+  public static native @Cast("FT_Fixed") long FT_CeilFix( @Cast("FT_Fixed") long a );
 
 
   /**************************************************************************
@@ -4059,7 +4739,7 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    * @return :
    *   {@code a} rounded towards minus infinity.
    */
-  
+  public static native @Cast("FT_Fixed") long FT_FloorFix( @Cast("FT_Fixed") long a );
 
 
   /**************************************************************************
@@ -4081,7 +4761,8 @@ public static final int FT_FSTYPE_BITMAP_EMBEDDING_ONLY =         0x0200;
    * \note:
    *   The result is undefined if either {@code vector} or {@code matrix} is invalid.
    */
-  
+  public static native void FT_Vector_Transform( FT_Vector vector,
+                         @Const FT_Matrix matrix );
 
 
   /**************************************************************************
@@ -4172,7 +4853,18 @@ public static final int FREETYPE_PATCH =  1;
    *   In such cases, the library version might not be available before the
    *   library object has been created.
    */
-  
+  public static native void FT_Library_Version( FT_Library library,
+                        @Cast("FT_Int*") IntPointer amajor,
+                        @Cast("FT_Int*") IntPointer aminor,
+                        @Cast("FT_Int*") IntPointer apatch );
+  public static native void FT_Library_Version( FT_Library library,
+                        @Cast("FT_Int*") IntBuffer amajor,
+                        @Cast("FT_Int*") IntBuffer aminor,
+                        @Cast("FT_Int*") IntBuffer apatch );
+  public static native void FT_Library_Version( FT_Library library,
+                        @Cast("FT_Int*") int[] amajor,
+                        @Cast("FT_Int*") int[] aminor,
+                        @Cast("FT_Int*") int[] apatch );
 
 
   /**************************************************************************
@@ -4196,7 +4888,7 @@ public static final int FREETYPE_PATCH =  1;
    * @since :
    *   2.3.5
    */
-  
+  public static native @Cast("FT_Bool") byte FT_Face_CheckTrueTypePatents( FT_Face face );
 
 
   /**************************************************************************
@@ -4223,7 +4915,8 @@ public static final int FREETYPE_PATCH =  1;
    * @since :
    *   2.3.5
    */
-  
+  public static native @Cast("FT_Bool") byte FT_Face_SetUnpatentedHinting( FT_Face face,
+                                  @Cast("FT_Bool") byte value );
 
   /* */
 
@@ -4231,6 +4924,497 @@ public static final int FREETYPE_PATCH =  1;
 
 
 /* END */
+
+
+
+
+// Parsed from <freetype/ftoutln.h>
+
+/****************************************************************************
+ *
+ * ftoutln.h
+ *
+ *   Support for the FT_Outline type used to store glyph shapes of
+ *   most scalable font formats (specification).
+ *
+ * Copyright (C) 1996-2019 by
+ * David Turner, Robert Wilhelm, and Werner Lemberg.
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
+
+
+// #ifndef FTOUTLN_H_
+// #define FTOUTLN_H_
+
+
+// #include <ft2build.h>
+// #include FT_FREETYPE_H
+
+// #ifdef FREETYPE_H
+// #error "freetype.h of FreeType 1 has been loaded!"
+// #error "Please fix the directory search order for header files"
+// #error "so that freetype.h of FreeType 2 is found first."
+// #endif
+
+
+public static native @Cast("FT_Error") int FT_Outline_Decompose( FT_Outline outline,
+                        @Const FT_Outline_Funcs func_interface,
+                        Pointer user );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_New
+   *
+   * \description:
+   *   Create a new outline of a given size.
+   *
+   * \input:
+   *   library ::
+   *     A handle to the library object from where the outline is allocated.
+   *     Note however that the new outline will **not** necessarily be
+   *     **freed**, when destroying the library, by \FT_Done_FreeType.
+   *
+   *   numPoints ::
+   *     The maximum number of points within the outline.  Must be smaller
+   *     than or equal to 0xFFFF (65535).
+   *
+   *   numContours ::
+   *     The maximum number of contours within the outline.  This value must
+   *     be in the range 0 to {@code numPoints}.
+   *
+   * \output:
+   *   anoutline ::
+   *     A handle to the new outline.
+   *
+   * @return :
+   *   FreeType error code.  0~means success.
+   *
+   * \note:
+   *   The reason why this function takes a {@code library} parameter is simply to
+   *   use the library's memory allocator.
+   */
+  public static native @Cast("FT_Error") int FT_Outline_New( FT_Library library,
+                    @Cast("FT_UInt") int numPoints,
+                    @Cast("FT_Int") int numContours,
+                    FT_Outline anoutline );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_Done
+   *
+   * \description:
+   *   Destroy an outline created with \FT_Outline_New.
+   *
+   * \input:
+   *   library ::
+   *     A handle of the library object used to allocate the outline.
+   *
+   *   outline ::
+   *     A pointer to the outline object to be discarded.
+   *
+   * @return :
+   *   FreeType error code.  0~means success.
+   *
+   * \note:
+   *   If the outline's 'owner' field is not set, only the outline descriptor
+   *   will be released.
+   */
+  public static native @Cast("FT_Error") int FT_Outline_Done( FT_Library library,
+                     FT_Outline outline );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_Check
+   *
+   * \description:
+   *   Check the contents of an outline descriptor.
+   *
+   * \input:
+   *   outline ::
+   *     A handle to a source outline.
+   *
+   * @return :
+   *   FreeType error code.  0~means success.
+   *
+   * \note:
+   *   An empty outline, or an outline with a single point only is also
+   *   valid.
+   */
+  public static native @Cast("FT_Error") int FT_Outline_Check( FT_Outline outline );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_Get_CBox
+   *
+   * \description:
+   *   Return an outline's 'control box'.  The control box encloses all the
+   *   outline's points, including Bezier control points.  Though it
+   *   coincides with the exact bounding box for most glyphs, it can be
+   *   slightly larger in some situations (like when rotating an outline that
+   *   contains Bezier outside arcs).
+   *
+   *   Computing the control box is very fast, while getting the bounding box
+   *   can take much more time as it needs to walk over all segments and arcs
+   *   in the outline.  To get the latter, you can use the 'ftbbox'
+   *   component, which is dedicated to this single task.
+   *
+   * \input:
+   *   outline ::
+   *     A pointer to the source outline descriptor.
+   *
+   * \output:
+   *   acbox ::
+   *     The outline's control box.
+   *
+   * \note:
+   *   See \FT_Glyph_Get_CBox for a discussion of tricky fonts.
+   */
+  public static native void FT_Outline_Get_CBox( @Const FT_Outline outline,
+                         FT_BBox acbox );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_Translate
+   *
+   * \description:
+   *   Apply a simple translation to the points of an outline.
+   *
+   * \inout:
+   *   outline ::
+   *     A pointer to the target outline descriptor.
+   *
+   * \input:
+   *   xOffset ::
+   *     The horizontal offset.
+   *
+   *   yOffset ::
+   *     The vertical offset.
+   */
+  public static native void FT_Outline_Translate( @Const FT_Outline outline,
+                          @Cast("FT_Pos") long xOffset,
+                          @Cast("FT_Pos") long yOffset );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_Copy
+   *
+   * \description:
+   *   Copy an outline into another one.  Both objects must have the same
+   *   sizes (number of points & number of contours) when this function is
+   *   called.
+   *
+   * \input:
+   *   source ::
+   *     A handle to the source outline.
+   *
+   * \output:
+   *   target ::
+   *     A handle to the target outline.
+   *
+   * @return :
+   *   FreeType error code.  0~means success.
+   */
+  public static native @Cast("FT_Error") int FT_Outline_Copy( @Const FT_Outline source,
+                     FT_Outline target );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_Transform
+   *
+   * \description:
+   *   Apply a simple 2x2 matrix to all of an outline's points.  Useful for
+   *   applying rotations, slanting, flipping, etc.
+   *
+   * \inout:
+   *   outline ::
+   *     A pointer to the target outline descriptor.
+   *
+   * \input:
+   *   matrix ::
+   *     A pointer to the transformation matrix.
+   *
+   * \note:
+   *   You can use \FT_Outline_Translate if you need to translate the
+   *   outline's points.
+   */
+  public static native void FT_Outline_Transform( @Const FT_Outline outline,
+                          @Const FT_Matrix matrix );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_Embolden
+   *
+   * \description:
+   *   Embolden an outline.  The new outline will be at most 4~times
+   *   {@code strength} pixels wider and higher.  You may think of the left and
+   *   bottom borders as unchanged.
+   *
+   *   Negative {@code strength} values to reduce the outline thickness are
+   *   possible also.
+   *
+   * \inout:
+   *   outline ::
+   *     A handle to the target outline.
+   *
+   * \input:
+   *   strength ::
+   *     How strong the glyph is emboldened.  Expressed in 26.6 pixel format.
+   *
+   * @return :
+   *   FreeType error code.  0~means success.
+   *
+   * \note:
+   *   The used algorithm to increase or decrease the thickness of the glyph
+   *   doesn't change the number of points; this means that certain
+   *   situations like acute angles or intersections are sometimes handled
+   *   incorrectly.
+   *
+   *   If you need 'better' metrics values you should call
+   *   \FT_Outline_Get_CBox or \FT_Outline_Get_BBox.
+   *
+   *   To get meaningful results, font scaling values must be set with
+   *   functions like \FT_Set_Char_Size before calling FT_Render_Glyph.
+   *
+   * \example:
+   *   <pre>{@code
+   *     FT_Load_Glyph( face, index, FT_LOAD_DEFAULT );
+   *
+   *     if ( face->glyph->format == FT_GLYPH_FORMAT_OUTLINE )
+   *       FT_Outline_Embolden( &face->glyph->outline, strength );
+   *   }</pre>
+   *
+   */
+  public static native @Cast("FT_Error") int FT_Outline_Embolden( FT_Outline outline,
+                         @Cast("FT_Pos") long strength );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_EmboldenXY
+   *
+   * \description:
+   *   Embolden an outline.  The new outline will be {@code xstrength} pixels wider
+   *   and {@code ystrength} pixels higher.  Otherwise, it is similar to
+   *   \FT_Outline_Embolden, which uses the same strength in both directions.
+   *
+   * @since :
+   *   2.4.10
+   */
+  public static native @Cast("FT_Error") int FT_Outline_EmboldenXY( FT_Outline outline,
+                           @Cast("FT_Pos") long xstrength,
+                           @Cast("FT_Pos") long ystrength );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_Reverse
+   *
+   * \description:
+   *   Reverse the drawing direction of an outline.  This is used to ensure
+   *   consistent fill conventions for mirrored glyphs.
+   *
+   * \inout:
+   *   outline ::
+   *     A pointer to the target outline descriptor.
+   *
+   * \note:
+   *   This function toggles the bit flag \FT_OUTLINE_REVERSE_FILL in the
+   *   outline's {@code flags} field.
+   *
+   *   It shouldn't be used by a normal client application, unless it knows
+   *   what it is doing.
+   */
+  public static native void FT_Outline_Reverse( FT_Outline outline );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_Get_Bitmap
+   *
+   * \description:
+   *   Render an outline within a bitmap.  The outline's image is simply
+   *   OR-ed to the target bitmap.
+   *
+   * \input:
+   *   library ::
+   *     A handle to a FreeType library object.
+   *
+   *   outline ::
+   *     A pointer to the source outline descriptor.
+   *
+   * \inout:
+   *   abitmap ::
+   *     A pointer to the target bitmap descriptor.
+   *
+   * @return :
+   *   FreeType error code.  0~means success.
+   *
+   * \note:
+   *   This function does **not create** the bitmap, it only renders an
+   *   outline image within the one you pass to it!  Consequently, the
+   *   various fields in {@code abitmap} should be set accordingly.
+   *
+   *   It will use the raster corresponding to the default glyph format.
+   *
+   *   The value of the {@code num_grays} field in {@code abitmap} is ignored.  If you
+   *   select the gray-level rasterizer, and you want less than 256 gray
+   *   levels, you have to use \FT_Outline_Render directly.
+   */
+  public static native @Cast("FT_Error") int FT_Outline_Get_Bitmap( FT_Library library,
+                           FT_Outline outline,
+                           @Const FT_Bitmap abitmap );
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_Render
+   *
+   * \description:
+   *   Render an outline within a bitmap using the current scan-convert.
+   *
+   * \input:
+   *   library ::
+   *     A handle to a FreeType library object.
+   *
+   *   outline ::
+   *     A pointer to the source outline descriptor.
+   *
+   * \inout:
+   *   params ::
+   *     A pointer to an \FT_Raster_Params structure used to describe the
+   *     rendering operation.
+   *
+   * @return :
+   *   FreeType error code.  0~means success.
+   *
+   * \note:
+   *   This advanced function uses \FT_Raster_Params as an argument,
+   *   allowing FreeType rasterizer to be used for direct composition,
+   *   translucency, etc.  You should know how to set up \FT_Raster_Params
+   *   for this function to work.
+   *
+   *   The field {@code params.source} will be set to {@code outline} before the scan
+   *   converter is called, which means that the value you give to it is
+   *   actually ignored.
+   *
+   *   The gray-level rasterizer always uses 256 gray levels.  If you want
+   *   less gray levels, you have to provide your own span callback.  See the
+   *   \FT_RASTER_FLAG_DIRECT value of the {@code flags} field in the
+   *   \FT_Raster_Params structure for more details.
+   */
+  public static native @Cast("FT_Error") int FT_Outline_Render( FT_Library library,
+                       FT_Outline outline,
+                       FT_Raster_Params params );
+
+
+  /**************************************************************************
+   *
+   * \enum:
+   *   FT_Orientation
+   *
+   * \description:
+   *   A list of values used to describe an outline's contour orientation.
+   *
+   *   The TrueType and PostScript specifications use different conventions
+   *   to determine whether outline contours should be filled or unfilled.
+   *
+   * \values:
+   *   FT_ORIENTATION_TRUETYPE ::
+   *     According to the TrueType specification, clockwise contours must be
+   *     filled, and counter-clockwise ones must be unfilled.
+   *
+   *   FT_ORIENTATION_POSTSCRIPT ::
+   *     According to the PostScript specification, counter-clockwise
+   *     contours must be filled, and clockwise ones must be unfilled.
+   *
+   *   FT_ORIENTATION_FILL_RIGHT ::
+   *     This is identical to \FT_ORIENTATION_TRUETYPE, but is used to
+   *     remember that in TrueType, everything that is to the right of the
+   *     drawing direction of a contour must be filled.
+   *
+   *   FT_ORIENTATION_FILL_LEFT ::
+   *     This is identical to \FT_ORIENTATION_POSTSCRIPT, but is used to
+   *     remember that in PostScript, everything that is to the left of the
+   *     drawing direction of a contour must be filled.
+   *
+   *   FT_ORIENTATION_NONE ::
+   *     The orientation cannot be determined.  That is, different parts of
+   *     the glyph have different orientation.
+   *
+   */
+  /** enum FT_Orientation_ */
+  public static final int
+    FT_ORIENTATION_TRUETYPE   = 0,
+    FT_ORIENTATION_POSTSCRIPT = 1,
+    FT_ORIENTATION_FILL_RIGHT = FT_ORIENTATION_TRUETYPE,
+    FT_ORIENTATION_FILL_LEFT  = FT_ORIENTATION_POSTSCRIPT,
+    FT_ORIENTATION_NONE = FT_ORIENTATION_POSTSCRIPT + 1;
+
+
+  /**************************************************************************
+   *
+   * \function:
+   *   FT_Outline_Get_Orientation
+   *
+   * \description:
+   *   This function analyzes a glyph outline and tries to compute its fill
+   *   orientation (see \FT_Orientation).  This is done by integrating the
+   *   total area covered by the outline. The positive integral corresponds
+   *   to the clockwise orientation and \FT_ORIENTATION_POSTSCRIPT is
+   *   returned. The negative integral corresponds to the counter-clockwise
+   *   orientation and \FT_ORIENTATION_TRUETYPE is returned.
+   *
+   *   Note that this will return \FT_ORIENTATION_TRUETYPE for empty
+   *   outlines.
+   *
+   * \input:
+   *   outline ::
+   *     A handle to the source outline.
+   *
+   * @return :
+   *   The orientation.
+   *
+   */
+  public static native @Cast("FT_Orientation") int FT_Outline_Get_Orientation( FT_Outline outline );
+
+
+  /* */
+
+// #endif /* FTOUTLN_H_ */
+
+
+/* END */
+
+
+/* Local Variables: */
+/* coding: utf-8    */
+/* End:             */
 
 
 

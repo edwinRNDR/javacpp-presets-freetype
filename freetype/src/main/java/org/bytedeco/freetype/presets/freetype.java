@@ -21,7 +21,6 @@
  */
 package org.bytedeco.freetype.presets;
 
-import java.util.List;
 import org.bytedeco.javacpp.ClassProperties;
 import org.bytedeco.javacpp.LoadEnabled;
 import org.bytedeco.javacpp.Loader;
@@ -31,8 +30,9 @@ import org.bytedeco.javacpp.tools.Info;
 import org.bytedeco.javacpp.tools.InfoMap;
 import org.bytedeco.javacpp.tools.InfoMapper;
 
+import java.util.List;
+
 /**
- *
  * @author Edwin Jakobs
  */
 @Properties(
@@ -43,10 +43,12 @@ import org.bytedeco.javacpp.tools.InfoMapper;
 
                         include = {
                                 "<ft2build.h>",
+                                "<freetype/config/ftconfig.h>",
                                 "<freetype/fttypes.h>",
                                 "<freetype/ftsystem.h>",
                                 "<freetype/ftimage.h>",
-                                "<freetype/freetype.h>"
+                                "<freetype/freetype.h>",
+                                "<freetype/ftoutln.h>"
 
                         },
                         link = "freetype@2.10.1"
@@ -72,9 +74,12 @@ import org.bytedeco.javacpp.tools.InfoMapper;
         global = "org.bytedeco.freetype.global.freetype"
 )
 public class freetype implements LoadEnabled, InfoMapper {
-    static { Loader.checkVersion("org.bytedeco", "freetype"); }
+    static {
+        Loader.checkVersion("org.bytedeco", "freetype");
+    }
 
-    @Override public void init(ClassProperties properties) {
+    @Override
+    public void init(ClassProperties properties) {
         String platform = properties.getProperty("platform");
         List<String> preloadpaths = properties.get("platform.preloadpath");
 
@@ -94,8 +99,16 @@ public class freetype implements LoadEnabled, InfoMapper {
     }
 
     public void map(InfoMap infoMap) {
-        infoMap.put(new Info("FT_EXPORT").annotations());
-        infoMap.put(new Info("FT_BEGIN_HEADER", "FT_END_HEADER").cppTypes().annotations());
+
+
+//        infoMap.put(new Info("SIZEOF_INT").cppText("#define SIZEOF_INT 4"));
+//        infoMap.put(new Info("SIZEOF_LONG").cppText("#define SIZEOF_LONG 4"));
+//        infoMap.put(new Info("CHAR_BIT").cppText("#define CHAR_BIT 8"));
+        infoMap.put(new Info("FT_SIZEOF_INT == ( 32 / FT_CHAR_BIT )").define(true));
+        infoMap.put(new Info("FT_SIZEOF_INT", "FT_SIZEOF_LONG", "FT_CHAR_BIT", "FT_CALLBACK_TABLE", "FT_CALLBACK_TABLE_DEF", "FT_INT64", "FT_UINT64").skip());
+
+        infoMap.put(new Info("FT_EXPORT").cppText("#define FT_EXPORT(returnType) returnType"));
+        infoMap.put(new Info("FT_BEGIN_HEADER", "FT_END_HEADER", "FT_BEGIN_STMNT", "FT_END_STMNT", "FT_DUMMY_STMNT").cppTypes().annotations());
 
         infoMap.put(new Info("FT_OUTLINE_CONTOURS_MAX", "FT_OUTLINE_POINTS_MAX").cppTypes().annotations());
 
@@ -158,7 +171,6 @@ public class freetype implements LoadEnabled, InfoMapper {
         infoMap.put(new Info("ft_encoding_apple_roman").skip());
 
 
-
         infoMap.put(new Info("FT_FaceRec_").pointerTypes("FT_Face"));
         infoMap.put(new Info("FT_Face").valueTypes("FT_Face").pointerTypes("@Cast(\"FT_Face*\") PointerPointer", "@ByPtrPtr FT_Face"));
         infoMap.put(new Info("FT_MemoryRec").pointerTypes("FT_Memory"));
@@ -204,6 +216,9 @@ public class freetype implements LoadEnabled, InfoMapper {
 
         infoMap.put(new Info("FT_Slot_InternalRec_").pointerTypes("FT_Slot_Internal"));
         infoMap.put(new Info("FT_Slot_Internal").valueTypes("FT_Slot_Internal").pointerTypes("@Cast(\"FT_Slot_Internal*\") PointerPointer", "@ByPtrPtr FT_Slot_Internal"));
+
+        infoMap.put(new Info("FT_Size_RequestRec_").pointerTypes("FT_Size_Request"));
+        infoMap.put(new Info("FT_Size_Request").valueTypes("FT_Size_Request").pointerTypes("@Cast(\"FT_Size_Request*\") PointerPointer", "@ByPtrPtr FT_Size_Request"));
 
     }
 
